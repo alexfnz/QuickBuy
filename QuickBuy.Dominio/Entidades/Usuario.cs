@@ -4,7 +4,7 @@ using System.Text;
 
 namespace QuickBuy.Dominio.Entidades
 {
-    public class Usuario
+    public class Usuario : Entidade
     {
         public int Id { get; set; }
 
@@ -17,5 +17,18 @@ namespace QuickBuy.Dominio.Entidades
         public string Sobrenome { get; set; }
 
         public ICollection<Pedido> Pedidos { get; set; }
+
+        public override void Validate()
+        {
+            if (string.IsNullOrEmpty(Email))
+            {
+                AdicionarCritica("Email não informado.");
+            }
+
+            if (string.IsNullOrEmpty(Senha))
+            {
+                AdicionarCritica("Senha não informado.");
+            }
+        }
     }
 }
