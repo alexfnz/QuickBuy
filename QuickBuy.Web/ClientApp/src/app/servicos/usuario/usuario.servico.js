@@ -1,64 +1,70 @@
 "use strict";
-var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
-    function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
-    var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
-    var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
-    var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
-    var _, done = false;
-    for (var i = decorators.length - 1; i >= 0; i--) {
-        var context = {};
-        for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
-        for (var p in contextIn.access) context.access[p] = contextIn.access[p];
-        context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
-        var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
-        if (kind === "accessor") {
-            if (result === void 0) continue;
-            if (result === null || typeof result !== "object") throw new TypeError("Object expected");
-            if (_ = accept(result.get)) descriptor.get = _;
-            if (_ = accept(result.set)) descriptor.set = _;
-            if (_ = accept(result.init)) initializers.push(_);
-        }
-        else if (_ = accept(result)) {
-            if (kind === "field") initializers.push(_);
-            else descriptor[key] = _;
-        }
-    }
-    if (target) Object.defineProperty(target, contextIn.name, descriptor);
-    done = true;
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for (var i = 0; i < initializers.length; i++) {
-        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-    }
-    return useValue ? value : void 0;
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
 };
-var __setFunctionName = (this && this.__setFunctionName) || function (f, name, prefix) {
-    if (typeof name === "symbol") name = name.description ? "[".concat(name.description, "]") : "";
-    return Object.defineProperty(f, "name", { configurable: true, value: prefix ? "".concat(prefix, " ", name) : name });
-};
-var _this = this;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UsuarioServico = void 0;
 var core_1 = require("@angular/core");
-var UsuarioServico = exports.UsuarioServico = function () {
-    var _classDecorators = [(0, core_1.Injectable)({
+var http_1 = require("@angular/common/http");
+var UsuarioServico = exports.UsuarioServico = /** @class */ (function () {
+    function UsuarioServico(http, baseUrl) {
+        this.http = http;
+        this.baseUrl = baseUrl;
+    }
+    Object.defineProperty(UsuarioServico.prototype, "usuario", {
+        get: function () {
+            var usuario_json = sessionStorage.getItem("usuario-autenticado");
+            this._usuario = JSON.parse(usuario_json);
+            return this._usuario;
+        },
+        set: function (usuario) {
+            sessionStorage.setItem("usuario-autenticado", JSON.stringify(usuario));
+            this._usuario = usuario;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    UsuarioServico.prototype.usuario_autenticado = function () {
+        return this._usuario != null && this._usuario.email != "" && this._usuario.senha != "";
+    };
+    /*
+    public usuario_administrador(): boolean {
+      return this.usuario_autenticado() && this.usuario.ehAdministrador;
+    }*/
+    UsuarioServico.prototype.limparSessao = function () {
+        sessionStorage.setItem("usuario-autenticado", "");
+        this._usuario = null;
+    };
+    Object.defineProperty(UsuarioServico.prototype, "headers", {
+        get: function () {
+            return new http_1.HttpHeaders().set('content-type', 'application/json');
+        },
+        enumerable: false,
+        configurable: true
+    });
+    UsuarioServico.prototype.verificarUsuario = function (usuario) {
+        var headers = new http_1.HttpHeaders().set('content-type', 'application/json');
+        var body = {
+            email: usuario.email,
+            senha: usuario.senha
+        };
+        return this.http.post(this.baseUrl + "api/usuario/verificarUsuario", body, { headers: headers });
+    };
+    UsuarioServico.prototype.cadastrarUsuario = function (usuario) {
+        return this.http.post(this.baseUrl + "api/usuario", JSON.stringify(usuario), { headers: this.headers });
+    };
+    UsuarioServico = __decorate([
+        (0, core_1.Injectable)({
             providedIn: "root"
-        })];
-    var _classDescriptor;
-    var _classExtraInitializers = [];
-    var _classThis;
-    var UsuarioServico = _classThis = /** @class */ (function () {
-        function UsuarioServico_1() {
-        }
-        return UsuarioServico_1;
-    }());
-    __setFunctionName(_classThis, "UsuarioServico");
-    (function () {
-        __esDecorate(null, _classDescriptor = { value: _classThis }, _classDecorators, { kind: "class", name: _classThis.name }, null, _classExtraInitializers);
-        UsuarioServico = _classThis = _classDescriptor.value;
-        __runInitializers(_classThis, _classExtraInitializers);
-    })();
-    return UsuarioServico = _classThis;
-}();
+        }),
+        __param(1, (0, core_1.Inject)('BASE_URL'))
+    ], UsuarioServico);
+    return UsuarioServico;
+}());
 //# sourceMappingURL=usuario.servico.js.map

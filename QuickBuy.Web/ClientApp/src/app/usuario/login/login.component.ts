@@ -11,6 +11,8 @@ import { UsuarioServico } from "../../servicos/usuario/usuario.servico";
 export class LoginComponent implements OnInit{
   public usuario;
   private returnUrl: string;
+  public mensagem: string;
+  private ativar_spinner: boolean;
 
   constructor(private router: Router, private activatedRouter: ActivatedRoute, private usuarioServico: UsuarioServico) {
     
@@ -21,12 +23,22 @@ export class LoginComponent implements OnInit{
     }
 
   entrar() {
+    this.ativar_spinner = true;
     this.usuarioServico.verificarUsuario(this.usuario).subscribe(
-      data => {
+      usuario_json => {
+        this.usuarioServico.usuario = usuario_json;
 
+        if (this.returnUrl == null) {
+          this.router.navigate(['/']);
+        } else {
+          this.router.navigate([this.returnUrl]);
+        }
+        
       },
       err => {
-
+        console.log(err.error);
+        this.mensagem = err.error;
+        this.ativar_spinner = false;
       }
     );
   }
